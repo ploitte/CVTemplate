@@ -12,6 +12,7 @@ $(document).ready(function(){
                 comment : $comment
             },
             success: function(data){
+                console.log("success");
             },
             error: function(error){
                 console.log(error);
@@ -21,7 +22,6 @@ $(document).ready(function(){
 
 
     $(document).on("click", "#submit",  function(e){
-        console.log("Salut");
         e.preventDefault();
 
         let $name = $("#name").val();
@@ -32,32 +32,31 @@ $(document).ready(function(){
 
         let div = "<ul>";
 
-        if($name != ""){
-
-            if($email != ""){
-
-                if($email.match(regex)){
-
-                    if($comment != ""){
-
-                        sendMail($name, $email, $comment);
-                    }else{
-                        div += "<li>Missing comment</li>";
-                    }
-                }else{
-
-                    div += "<li>Invalid email</li>";
-                }
-            }else{
+            if($name == "")
+                div += "<li>Missing name</li>";
+            
+            if($email == "")
                 div += "<li>Missing email</li>";
-            }
-        }else{
-            div += "<li>Missing name</li>";
-        }
+
+            else if(!$email.match(regex))
+                div += "<li>Invalid email</li>";
+
+            if($comment == "")
+                div += "<li>Missing comment</li>";
 
         div += "</ul>";
-        
 
+        let word = new RegExp("<li>");
+        let search = div.match(word);
+
+        if(search != null){
+            console.log(div);
+            $("#errors").html(div);
+        }else{
+            sendMail($name, $email, $comment);
+            $("#errors").html("Email has been sended").css("color", "green");
+            $("textarea").val("");
+        }
     });
 
 
