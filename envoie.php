@@ -1,57 +1,36 @@
 <?php
 
-require_once "recaptchalib.php";
-
-
-if(isset($_POST["name"])
-&& isset($_POST["email"])
-&& isset($_POST["comment"])){
-
-
-   
-    // your secret key
-    $secret = "6Lf8PkEUAAAAAPLdVJXCvBul494iLjYfiWhj1Ik9";
-    
-    // empty response
-    $response = null;
-    
-    // check secret key
-    $reCaptcha = new ReCaptcha($secret);
-
-
     $name = $_POST["name"];
     $email = $_POST["email"];
     $comment = $_POST["comment"];
 
-
-    if ($_POST["g-recaptcha-response"]){
-
-        $response = $reCaptcha->verifyResponse(
-            $_SERVER["REMOTE_ADDR"],
-            $_POST["g-recaptcha-response"]
-        );
-
-        if($response != null && $response->success){
-
-            if(!empty($name)
-            && !empty($email)
-            && !empty($comment)){
-                if(preg_match('#^[\w.-]+@[\w.-]+\.[a-z]{2,6}$#i', $email)){
-                    
-
-                    $to = "lucrosinol@gmail.com";
-                    $subject = "Cv Contact";
-                    $message = wordwrap($comment, 70);
-                    $headers = 'De: ' . $name . " email: " . $email;
+    $to = "lucrosinol@gmail.com";
+    $subject = "CV_Contact";
+    $message = "De: " . $name . "\r";
+    $message .= " Email: " . $email . "\r\r";
+    $message .= $message = wordwrap($comment, 70);
 
 
-                    mail($to, $subject, $message, $headers);
+	// Ma clé privée
+	$secret = "6LdVZEEUAAAAANcwHSj6FNoqvP_Eqp1oaMkWuBwR";
+	// Paramètre renvoyé par le recaptcha
+	$response = $_POST['g-recaptcha-response'];
+	// On récupère l'IP de l'utilisateur
+	$remoteip = $_SERVER['REMOTE_ADDR'];
 
-                }
-            }
-        }
-    }
+	$api_url = "https://www.google.com/recaptcha/api/siteverify?secret=" 
+	    . $secret
+	    . "&response=" . $response
+	    . "&remoteip=" . $remoteip ;
+		
+    $decode = json_decode(file_get_contents($api_url), true);
 
 
+	if ($decode['success'] == true){
+		mail($to, $subject, $message);
+	}else
+        return "ROBOT DETECTED";
 
-}
+    
+
+

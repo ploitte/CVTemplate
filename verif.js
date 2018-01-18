@@ -1,10 +1,14 @@
 $(document).ready(function(){
 
+    $("#captcha").slideUp();
+
+
+
     function sendMail($name, $email, $comment){
 
         $.ajax({
             url: "envoie.php",
-            method: "post",
+            type: "post",
             dataType: "json",
             data:{
                 name : $name,
@@ -12,7 +16,7 @@ $(document).ready(function(){
                 comment : $comment
             },
             success: function(data){
-                console.log("success");
+                console.log(data);
             },
             error: function(error){
                 console.log(error);
@@ -21,12 +25,18 @@ $(document).ready(function(){
     }
 
 
+
     $(document).on("click", "#submit",  function(e){
+
+
         e.preventDefault();
+
 
         let $name = $("#name").val();
         let $email = $("#email").val();
         let $comment = $("#comments").val();
+
+        let response = grecaptcha.getResponse();
 
         let regex = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
 
@@ -43,6 +53,9 @@ $(document).ready(function(){
 
             if($comment == "")
                 div += "<li>Missing comment</li>";
+            if(response.length == 0 ){
+                div += "<li>Captcha not checked</li>";
+            }
 
         div += "</ul>";
 
@@ -51,15 +64,24 @@ $(document).ready(function(){
 
         if(search != null){
             console.log(div);
-            $("#errors").html(div);
+            $("#errors").html(div).css("color", "red");
+            grecaptcha.reset();
         }else{
             sendMail($name, $email, $comment);
-            $("#errors").html("Email has been sended").css("color", "green");
+            $("#errors").html("Email has been sent").css("color", "green");
             $("textarea").val("");
+            grecaptcha.reset();
         }
     });
 
+    $("#comments").keyup(function(){
 
+        if($("#comments").val() == "")
+            $("#captcha").slideUp();
+        else
+            $("#captcha").slideDown("slow");
+
+    });
 
 
 });
