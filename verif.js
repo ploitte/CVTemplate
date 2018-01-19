@@ -4,7 +4,7 @@ $(document).ready(function(){
 
 
 
-    function sendMail($name, $email, $comment){
+    function sendMail($name, $email, $comment, $rep){
 
         $.ajax({
             url: "envoie.php",
@@ -13,10 +13,11 @@ $(document).ready(function(){
             data:{
                 name : $name,
                 email : $email,
-                comment : $comment
+                comment : $comment,
+                response : $rep
             },
             success: function(data){
-                console.log(data);
+                
             },
             error: function(error){
                 console.log(error);
@@ -67,7 +68,7 @@ $(document).ready(function(){
             $("#errors").html(div).css("color", "red");
             grecaptcha.reset();
         }else{
-            sendMail($name, $email, $comment);
+            sendMail($name, $email, $comment, response);
             $("#errors").html("Email has been sent").css("color", "green");
             $("textarea").val("");
             grecaptcha.reset();
